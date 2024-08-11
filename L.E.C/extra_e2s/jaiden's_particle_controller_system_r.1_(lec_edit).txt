@@ -1,0 +1,64 @@
+@name Jaiden's Particle Controller System R.1 (LEC EDIT)
+@inputs On Throttle SteamGen SteamGenParticleSystem:entity  ExhaustEntity:entity
+@outputs SteamGenPart SteamGenString:string SteamGenSpeed ExhaustString:string ExhaustPart ExhaustSpeed
+@persist ExhaustArray:array
+@trigger 
+
+#Edit By Siggy and Simplified by Bidahochi Then Edited by Qulizznos for the L.E.C (and RepLC chip)
+
+#Configurations for the clag/smoke!
+
+#Steam Generator Settings
+SteamGenString="steam_gen"
+SteamGenSpeed=1
+
+#Diesel Exhaust Settings
+
+ExhaustArray=array(
+"clag_2stroke_0",
+"clag_2stroke_0",
+"clag_2stroke_0",
+"clag_2stroke_1",
+"clag_2stroke_2",
+"clag_2stroke_2"
+)
+# Actual Code!
+SteamGenParticleSystem:setAlpha(0)
+ExhaustEntity:setAlpha(0)
+
+if(SteamGen){
+SteamGenPart=1
+}else{
+SteamGenPart=0
+}
+if(On == 1){
+ExhaustPart=1
+ ExhaustString=ExhaustArray[6,string]
+   ExhaustSpeed=1
+
+}elseif(On == 2){
+ExhaustPart=1
+ if(Throttle<2){#0-1
+   ExhaustString=ExhaustArray[1,string]
+   ExhaustSpeed=1
+ }elseif(Throttle>1&Throttle<3){#2
+   ExhaustSpeed=124/Throttle
+   ExhaustString=ExhaustArray[2,string]
+ }elseif(Throttle>2&Throttle<5){#3-4
+   ExhaustSpeed=124/Throttle
+   ExhaustString=ExhaustArray[3,string]
+ }elseif(Throttle>4&Throttle<7){#5-6
+   ExhaustSpeed=124/Throttle
+   ExhaustString=ExhaustArray[4,string]
+ }elseif(Throttle>6&Throttle<9){#7-8
+   ExhaustSpeed=124/Throttle
+   ExhaustString=ExhaustArray[5,string]
+ }elseif(Throttle>9){#9
+   ExhaustSpeed=124/Throttle
+   ExhaustString=ExhaustArray[6,string]
+ }
+}elseif(On == 3){
+ExhaustPart=0
+}else{
+ExhaustPart=0
+}

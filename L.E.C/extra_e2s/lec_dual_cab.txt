@@ -1,0 +1,13 @@
+@name LEC DUAL CAB
+@inputs Pod1_Active Pod1_Key_Reverser_Forward Pod1_Key_Reverser_Backwards Pod1_Key_ThrottleUp Pod1_Key_ThrottleDown Pod1_Key_Handbrake Button1_ControlIsolation Pod2_Active Pod2_Key_Reverser_Forward Pod2_Key_Reverser_Backwards Pod2_Key_ThrottleUp Pod2_Key_ThrottleDown Pod2_Key_Handbrake Button2_ControlIsolation
+@outputs Active Pod_Key_Reverser_Forward Pod_Key_Reverser_Backwards Pod_Key_ThrottleUp Pod_Key_ThrottleDown Pod_Key_Handbrake Button_ControlIsolation
+
+#This is Used For Dual Stand Locomotives. Pod Controller 1 is the Forward way while Pod controller 2 Controls the Backwards Way.
+
+Pod_Key_ThrottleUp = Pod1_Key_ThrottleUp | Pod2_Key_ThrottleUp
+Pod_Key_ThrottleDown = Pod1_Key_ThrottleDown | Pod2_Key_ThrottleDown
+Pod_Key_Handbrake = Pod1_Key_Handbrake | Pod2_Key_Handbrake
+Pod_Key_Reverser_Forward = Pod1_Key_Reverser_Forward | Pod2_Key_Reverser_Backwards
+Pod_Key_Reverser_Backwards = Pod1_Key_Reverser_Backwards | Pod2_Key_Reverser_Forward
+Button_ControlIsolation = Button1_ControlIsolation | Button2_ControlIsolation
+Active = Pod1_Active | Pod2_Active
