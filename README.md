@@ -5,7 +5,7 @@ This E2 is a OpenSource E2 where People can Take it and Modify it, and Give Back
 WARNING: THIS PROJECT IS STILL UNDER CONSTRUCTION AS WELL!
 Hey! Just To Note: This E2 is gonna be Updated with Updates, New Stands, Bug Fix's, and Misc Items to Make Runnin a Hole lot Better!
 
-The E2 was created off: RepLC but Pulled away with new features and fixes.
+The E2 was spinned off RepLC but was updated to be much spread apart from it. 
 
 
 WARNING:
