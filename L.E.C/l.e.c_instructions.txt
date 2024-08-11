@@ -1,0 +1,52 @@
+@name L.E.C INSTRUCTIONS
+#[
+
+    Hello!
+    If your reading this, then Congrats! You Have Sucessfully picked up a Copy of L.E.C! Locomotive Engine Chip!
+    This Instruction Guide will help you on how to properly Set up and get goin with LEC!
+    
+    Lets Start with the Main Chip:
+        In the Main Chip, There is a Editable Config Section where you can Tune things to your like, such as changing Engine
+        Sounds, Toggling Abilities, and Such Much More! There are 3 Tiers: Settings, Kernel, & BSD!
+        Settings is the Most Editable Part and Shouldn't cause Much Issues.
+        Kernel is the Second Tier, There is Editable Settings but shouldn't really be touched, Keepin the E2 runnin like it
+        should be!
+        BSD is Not meant to be Touched as It houses the main componants.
+        
+        Wiring up the Chip is Easy!
+        
+        the First 3 Outputs: Locomotive_Body FrontBogie RearBogie Goes to Each Part of the Locomotive. To make Sure The Locomotive Moves;
+        Point the Point of Arrow Towards the Front End of your Locomotive (In Which way your Locomotive is gonna move Forward. LHF or SHF).
+        You Can MultiParent the E2 to the Loco in this Direction, Meaning a Con of 2!
+        The Inputs Named: Pod_Key goes to the Pod Controller, This Settings can be Changed to your Liking, However a Future
+        Config Script for Controls will be Made!
+        The Inputs Named: Button, Each Goes to Buttons.  The Only 2 Buttons that Matter is: Start and Shutdown and Control. 
+        
+        Brakes are Not Like OLC or RLC. They Set the Prop Physics Type to Slow down, If you use a Handbrake Release Tool (MCC or CCU)
+        Then You will also release the Brakes on the Loco.
+        
+    Control Stands:
+        Control Stands are Not Nessary, L.E.C's Notching System Acts like PTGamma 1 where the Controls are Built into it.
+        However It does house Vital Importantce.
+            
+                Gauges:
+                    The Gauges Do Server a Vital Importance! Here on Which Gauges Does:
+                    AFM Gauge - Measures the Main E2's OPS
+                    Speedo Gauge 1: Throttle MeasureMent. (Measures on How Much Your Givin Throttle (Doesn't Apply To Notches)
+                    Speedo Gauge 2: Speed Gauge
+                    LoadMeter: Measures Main E2's CPU Usage.
+                    
+                    
+        BodyGroup Stands will Be Coming Soon!!!!!!!!
+        
+        Most E2's (Like FBD and Speedos) Work Fine. Fans will be coming soon, Exhausts might be. (If I can get my hands on a PT1 Style
+        Exhaust).
+        
+        If You have Any Questions or Bug Reports! Please Shoot me a Message!
+        Special Thanks to:
+            Crash29
+            AZ2933
+            KLWX29
+            For Being my First Beta Testers!
+        
+    
