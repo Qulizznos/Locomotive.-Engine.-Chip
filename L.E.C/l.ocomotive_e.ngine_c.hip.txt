@@ -1,0 +1,683 @@
+@name L.ocomotive E.ngine C.hip
+@persist [LEC]:entity
+#[
+]#
+######################
+#      Inputs        #
+######################
+#Entities
+@inputs [Locomotive  FrontBogie RearBogie]:entity 
+#Pod Controller Inputs
+@inputs [Active ReverserForward ReverserBackwards IncreaseThrottle DecreaseThrottle TrainBrake]:number
+#Button Settings
+@inputs [EngineToggle Loco_MUMaster Toggle_HighIdle]:number
+######################
+#     Outputs        #
+######################
+@outputs [LEC_E2CPUUsage LEC_E2Ops EngineStatus HighIdling]:number
+@outputs [Throttle Reverser Notch NotchingThrottle Brake]:number
+@outputs [BlueForce BlueForce_Max]:number
+@outputs [MPH MPH_MAX KPH KPH_MAX UPS UPS_MAX]:number
+######################
+#     Triggers       #
+######################
+@trigger Active TrainBrake ReverserForward ReverserBackwards EngineToggle FrontBogie RearBogie Toggle_HighIdle
+######################
+#     Persists       #
+######################
+    ##########
+    #Settings#
+    ##########
+@persist [DPM DPM_Level IdleToggle Locomotive_Notches WheelSounds]:number
+@persist [BlueForce_Toggle BlueForce_MaxForce BlueForce_SplitForce]:number
+@persist [BlueForce_SpeedToggle BlueForce_SpeedDisengage]:number
+@persist [BlueForce_ApplyMode]:string
+@persist [SoundDSP_Enable SoundDSP_DSPlevel SoundDSP_Distance]:number
+@persist [Engine_SoundLevel]:number
+@persist [Engine_Path Engine_Startup Engine_Shutdown Engine_ShutdownLow Engine_IdleToOne Engine_OneToIdle]:string
+@persist [Engine_Brakes_On Engine_Brakes_Off Engine_PrimeOn Engine_Prime_Off Engine_TractionMotors]:string
+    ########
+    #Revolt#
+    ########
+@persist [Revolt_E2_Interval Revolt_Bogies]:number
+@persist [Revolt_NotchThresholds]:array
+@persist [Revolt_ForceMultiplier Revolt_MaxSpeed]:number
+@persist [Revolt_UnitScale]:string
+@persist [Revolt_ThrottleDeadZoneSize Revolt_Throttle]:number
+@persist [Revolt_ForceMode Revolt_Physprop_Brake Revolt_PhysProp_NoBrake]:string
+    ########
+    #Helios#
+    ########
+@persist [Helios_Entity]:entity
+@persist [Helios_EngineProcedures Helios_Activate Helios_HighIdleMin Helios_HighIdleMax]:number
+@persist [Helios_EntityCahce Helios_EngineReport Helios_EngineHighIdle Helios_ReverserCache]:number
+@persist [Helios_Notch Helios_ReceiveReturn Helios_Reverser Helios_SpeedScale Helios_Throttle Helios_ForgiveThrottle]:number
+@persist [Helios_FrontBogey_PhysProp Helios_RearBogey_PhysProp]:string
+    ######
+    #MISC#
+    ######
+@persist [HDD_Holo_Bogey1 HDD_Holo_Bogey_2 HDD_Holo_Locomotive]:number
+@persist [SPS_Sound_Engine SPS_Sound_Engine_Distant SPS_DPM_ENGINE]:number
+@persist [SPS_Sound_Brake_Front SPS_Sound_Brake_Rear SPS_Sound_Reverser SPS_WheelSounds_Front SPS_WheelSounds_Rear]:number
+@persist [ENT_Holo_Sound_Engine]:entity
+@persist [ThrottleYes SpeedYes]:number
+    #########
+    #OUTPUTS#
+    #########
+@persist [LEC_E2CPUUsage LEC_E2Ops EngineStatus HighIdling Throttle Reverser Notch NotchingThrottle Brake]:number
+@persist [BlueForce BlueForce_Max MPH MPH_MAX KPH KPH_MAX UPS UPS_MAX]:number
+
+#########################
+@model models/sprops/misc/alphanum/alphanum_arrow_a.mdl
+###########################################################################################################
+Version = "4.0.0"
+if(duped()){
+    reset()
+}
+if (first() | dupefinished()) {
+    
+ #Version Check
+    
+    #Overall Version Check
+    runOnHTTP(1)
+    httpRequest("https://github.com/Qulizznos/Locomotive.-Engine.-Chip./blob/main/version.txt")
+    timer("vc_timeout",5000)
+    
+######################
+#      CONFIG        #
+######################
+
+    #Setting Toggles:
+    DPM = 0 #This Makes the Chip act like it has Dual Prime Movers. (This Will Not Increase The Power of the E2, just only doubles the Sounds)
+        DPM_Level = 100
+    IdleToggle = 0  #This Settings Changes the Idle System in The E2. 0 is the Bulk Standered Low_Idle-Idle, 1 Is the Idle-Notch 1, and 2. is IdleNotch 1 System (WithOut LowIdle)
+    Locomotive_Notches = 8
+    WheelSounds = 1 #This Adds Wheel and Traction Motor Sounds To Play On the Bogies. 
+    
+    #Engine Sounds
+    Engine_Path = "gsgtrainsounds/emd645e3v16/"
+    #When Messing with These Settings, Please Follow the Examples as They Read from the Engine Path ^!
+        Engine_Startup = "/startup.wav"
+        Engine_Shutdown = "/shutdown.wav"
+        Engine_ShutdownLow = "/shutdown_low.wav"
+        Engine_IdleToOne = "up/0-1b.wav"
+        Engine_OneToIdle = "down/1-0b.wav"
+    Engine_SoundLevel = 80 #(Warning, Please Keep In Mind People don't like Loud Noises, So Be Curdious To Other Players have Soundlevel at 80 :])
+    
+    Engine_Brakes_On = "gsgtrainsounds/misc/airbrakes/air_train_apply.wav"
+    Engine_Brakes_Off = "gsgtrainsounds/misc/airbrakes/air_train_release.wav"
+    
+    Engine_TractionMotors = "gsgtrainsounds/wheels/emd_dr77_traction.wav"
+    
+    #SoundDSP (For That Extra Bass and Faraway sound)
+    SoundDSP_Enable = 0
+    SoundDSP_DSPlevel = 100
+    SoundDSP_Distance = 2
+    
+    #BlueForce: BlueForce is another Name For Downforce.
+    BlueForce_Toggle = 0
+    BlueForce_MaxForce = 500
+    BlueForce_ApplyMode = "both" #[ both | bogies | driver]#
+    BlueForce_SpeedToggle = 150
+    BlueForce_SpeedDisengage = 2347 * (50/100)
+    BlueForce_SplitForce = 0
+    
+######################
+#      Revolt        #
+######################
+#Don't Mess With This Part Unless you Know What to Do.
+
+Revolt_E2_Interval = 30
+    Revolt_ForceMultiplier = 1.0
+    Revolt_MaxSpeed = 2347 * (65/100)
+    Revolt_Physprop_Brake = "friction_25"
+    Revolt_PhysProp_NoBrake = "friction_00"
+    Revolt_ThrottleDeadZoneSize = 4
+    Revolt_Throttle = 0.5
+    Revolt_UnitScale = "player"
+    Revolt_ForceMode = "entity"
+    Revolt_NotchThresholds = array(
+    1,
+    15,
+    30,
+    40,
+    55,
+    70,
+    85,
+    95
+    )
+    Revolt_Bogies = 1
+
+######################
+#      Rejolt        #
+######################
+#Do Not Mess with This or Bad Things Can Occur!
+LEC = entity()
+
+    Helios_EntityCahce = 0
+    Helios_Activate = 1
+    Helios_EngineProcedures = 1
+        Helios_HighIdleMin = 70
+        Helios_HighIdleMax = 110
+    Helios_FrontBogey_PhysProp = Revolt_Physprop_Brake
+    Helios_RearBogey_PhysProp = Revolt_Physprop_Brake
+    Helios_EngineReport = 0
+    Helios_EngineHighIdle = 0
+    Helios_ReverserCache = 0
+    Helios_Notch = 0
+    Helios_SpeedScale = Revolt_UnitScale == "player" ? 1.33333333333 : 1
+    Helios_ReceiveReturn = 0
+    Helios_Reverser = 0
+    Helios_Throttle = 0
+######################
+#      Sound         #
+######################    
+SPS_Sound_Engine = 1
+SPS_Sound_Engine_Distant = 3
+SPS_Sound_Reverser = 5
+SPS_Sound_Brake_Front = 7
+SPS_Sound_Brake_Rear = 9
+SPS_DPM_ENGINE = 11
+SPS_WheelSounds_Front = 13
+SPS_WheelSounds_Rear = 15
+
+HDD_Holo_Bogey1 = 0
+HDD_Holo_Bogey_2 = 1
+HDD_Holo_Locomotive = 2
+
+######################
+#      MISCS         #
+###################### 
+#OutPuts
+BlueForce = 0
+BlueForce_Max =(BlueForce_Toggle != 0) * BlueForce_Max
+UPS = 0
+MPH = 0
+KPH = 0
+Throttle = 0
+Brake = 1
+HighIdling = 0
+Notch = 0
+Reverser = 0
+LEC_E2CPUUsage = 0
+UPS_MAX = Revolt_MaxSpeed
+MPH_MAX = round(Revolt_MaxSpeed * 0.04261363636 * Helios_SpeedScale)
+KPH_MAX = round(Revolt_MaxSpeed * 0.06857386363 * Helios_SpeedScale)
+
+#Deadzone
+Revolt_ThrottleDeadZoneSize = abs(Revolt_ThrottleDeadZoneSize)
+
+#Chip Settings
+A = LEC:getAlpha()
+LEC:setColor(vec4(150,50,200,A))
+
+
+#SND Holo Post
+holoCreate(HDD_Holo_Locomotive)
+holoModel(HDD_Holo_Locomotive, "models/sprops/misc/axis_plane.mdl")
+holoPos(HDD_Holo_Locomotive, LEC:toWorld(vec(0,0,0)))
+holoAng(HDD_Holo_Locomotive, LEC:angles())
+holoParent(HDD_Holo_Locomotive, LEC)
+holoAlpha(HDD_Holo_Locomotive, 0)
+ENT_Holo_Sound_Engine = holoEntity(HDD_Holo_Locomotive)
+    
+interval(Revolt_E2_Interval)    
+
+}else{
+UPS = Helios_Entity ? Helios_Entity:vel():length() : 0    
+MPH = round(UPS * 0.04261363636 * Helios_SpeedScale)
+KPH = round(UPS * 0.06857386363 * Helios_SpeedScale)
+}
+#-----------------------------------------------------------------------------------------------#
+#                               CHIP_KERNEL                                                     #
+#-----------------------------------------------------------------------------------------------#
+
+function number state_getCurrentNotch() {
+    if (Throttle == 0) {
+        return 0
+    }
+    
+    local LastNotch = 0
+    
+    for (I=1, Revolt_NotchThresholds:count()) {
+        local SpeedThreshold = Revolt_NotchThresholds[I,number]
+        if (abs(Throttle) < SpeedThreshold) {
+            return I - 1
+        }
+    }
+    
+    return Locomotive_Notches
+}
+
+function void sound_startNotchTransition(ForceTransitionSound:string) {
+    if (Helios_EngineReport != 2) { return }
+    local CurNotch = state_getCurrentNotch()
+    
+    local TransitionSound = ForceTransitionSound
+    
+    if (TransitionSound == "") {
+         if(IdleToggle == 1){
+        if ((Reverser != Helios_Reverser) & (CurNotch == 0) & !Helios_EngineHighIdle) {
+            TransitionSound = HighIdling ? Engine_OneToIdle : Engine_IdleToOne
+        } elseif (CurNotch != Helios_Notch) {
+            if (CurNotch + Helios_Notch > 1) {
+                local Direction = CurNotch > Helios_Notch ? "up" : "down"
+                TransitionSound = format("%s/%d-%db.wav", Direction, Helios_Notch, CurNotch)
+            } elseif (!HighIdling) {
+                TransitionSound = CurNotch == 0 ? Engine_OneToIdle :  Engine_IdleToOne
+            }
+        }
+    }elseif(IdleToggle == 2){
+        if ((Reverser != Helios_Reverser) & (CurNotch == 0) & !Helios_EngineHighIdle) {
+            TransitionSound = HighIdling ? "" : ""
+        } elseif (CurNotch != Helios_Notch) {
+            if (CurNotch + Helios_Notch > 1) {
+                local Direction = CurNotch > Helios_Notch ? "up" : "down"
+                TransitionSound = format("%s/%d-%db.wav", Direction, Helios_Notch, CurNotch)
+            } elseif (!HighIdling) {
+                TransitionSound = CurNotch == 0 ? "" : ""
+            }
+        }
+    }else{
+          if ((Reverser != Helios_Reverser) & (CurNotch == 0) & !Helios_EngineHighIdle) {
+            TransitionSound = HighIdling ? "down/idle-idle_low.wav" : "up/idle_low-idle.wav"
+        } elseif (CurNotch != Helios_Notch) {
+            if (CurNotch + Helios_Notch > 1) {
+                local Direction = CurNotch > Helios_Notch ? "up" : "down"
+                TransitionSound = format("%s/%d-%db.wav", Direction, Helios_Notch, CurNotch)
+            } elseif (!HighIdling) {
+                TransitionSound = CurNotch == 0 ? "down/idle-idle_low.wav" : "up/idle_low-idle.wav"
+            }
+        }
+    }
+    }
+
+    Helios_Notch = CurNotch
+    
+    if (TransitionSound != "") {
+        local SoundToPlay = format("%s/transitions/%s", Engine_Path, TransitionSound)
+        soundStop(SPS_Sound_Engine)
+        ENT_Holo_Sound_Engine:soundPlay(SPS_Sound_Engine, 0, SoundToPlay)
+        soundLevel(SPS_Sound_Engine, Engine_SoundLevel)
+        if (SoundDSP_Enable) {
+            soundStop(SPS_Sound_Engine_Distant)
+            entity():soundPlay(SPS_Sound_Engine_Distant, 0, SoundToPlay)
+            soundDSP(SPS_Sound_Engine_Distant, SoundDSP_Distance)
+            soundLevel(SPS_Sound_Engine_Distant, SoundDSP_DSPlevel*0.5)
+        }
+        if (DPM) {
+            soundStop(SPS_DPM_ENGINE)
+            entity():soundPlay(SPS_DPM_ENGINE, 0, SoundToPlay)
+            soundLevel(SPS_DPM_ENGINE, DPM_Level * 0.25)
+        }
+        stoptimer("ENGINE_TRANSITION")
+        timer("ENGINE_TRANSITION", soundDuration(SoundToPlay) * 995)
+    }
+}
+
+function void holo_cloneBogey(Bogey:entity, Idx:number) {
+    holoCreate(Idx)
+    holoPos(Idx, Bogey:pos())
+    holoAng(Idx, Bogey:angles())
+    holoParent(Idx, Bogey)
+    
+    # Copy basic stuff
+    holoModel(Idx, Bogey:model())
+    holoColor(Idx, Bogey:getColor4())
+    holoSkin(Idx, Bogey:getSkin())
+    holoMaterial(Idx, Bogey:getMaterial())
+    
+    local E = holoEntity(Idx)
+    for (I=0,32) {
+        local SM = Bogey:getSubMaterial(I)
+        if (SM != "") {
+            E:setSubMaterial(I, SM)
+        }
+    }
+    
+    for (I=0,64) {
+        local SubBGCount = Bogey:getBodygroups(I)
+        if (SubBGCount > 1) {
+            local Choice = Bogey:getBodygroup(I)
+            if (Choice != 0) {
+                E:setBodygroup(I, Choice)
+            }
+        }
+    }
+}
+
+function void state_refreshHighIdle() {
+    HighIdling = Toggle_HighIdle | Helios_EngineHighIdle | (Helios_Reverser != 0)
+}
+##########################################################################
+#                                                                        #
+#                                                                        #
+#                           LOGIC FUNCTIONS                              #
+#                                                                        #
+#                                                                        #
+##########################################################################
+
+if (clk()) {
+    if (Helios_EngineReport != 2 && !Active) {
+        interval(1000)  
+    } else {
+        interval(Revolt_E2_Interval)
+    }
+    
+    if (!Helios_ReceiveReturn) {
+        if (bXor(IncreaseThrottle, DecreaseThrottle)) {
+            local ApplyThrottleAmount = 0
+            local ThrotAdd = Revolt_Throttle
+            if (IncreaseThrottle) {
+                ApplyThrottleAmount = ThrotAdd
+            }
+            if (DecreaseThrottle) {
+                ApplyThrottleAmount = -ThrotAdd
+            }
+            local Throttle_DeadzoneSize = Helios_Activate ? 1 : Revolt_ThrottleDeadZoneSize
+            local Throttle_Min = (Helios_Activate ? 0 : -100) - Throttle_DeadzoneSize
+            local Throttle_Max = 100 + Throttle_DeadzoneSize
+            Helios_Throttle = max(Throttle_Min, min(Helios_Throttle + ApplyThrottleAmount, Throttle_Max))
+            Throttle = floor(sign(Helios_Throttle) * max(0, abs(Helios_Throttle) - Throttle_DeadzoneSize))
+            
+            if (Helios_EngineReport == 2) {
+                if (!Helios_Activate) {
+                    local EngineSoundPitch = abs(Throttle) / 2
+                    soundPitch(SPS_Sound_Engine, 100 + EngineSoundPitch)
+                } else {
+                    sound_startNotchTransition("")
+                }
+            }
+        }
+    }
+    local ForceDirection = (Helios_Reverser || !Helios_Activate)
+    if (ForceDirection && Helios_EngineReport == 2 && Throttle != 0) {
+        if (!Helios_Entity) {
+            Helios_Entity = Revolt_ForceMode == "weld" ? LEC:isWeldedTo() : Locomotive
+        }
+        if (Helios_Entity) {
+            if (abs(Helios_Entity:vel():length()) < Revolt_MaxSpeed * (abs(Throttle) / 100)) { # Speed limit
+                local Up = LEC:up()
+                Helios_Entity:applyForce(ForceDirection * Up * (Throttle * 5000 * Revolt_ForceMultiplier))
+            }
+        }
+    }
+    if (Helios_Entity) {
+        local NewDownforce = 0
+        if (BlueForce_Toggle & (UPS > BlueForce_SpeedToggle)) {
+            local F = min((UPS - BlueForce_SpeedToggle) / (BlueForce_SpeedDisengage-BlueForce_SpeedToggle), 1)
+            if (F > 0.0025) {
+                Mode = BlueForce_ApplyMode
+                ApplyForceBogey1 = Mode == "bogies" | Mode == "both"
+                ApplyForceBogey2 = ApplyForceBogey1
+                ApplyForceDriver = (Mode == "driver") | (
+                    (Mode == "both") & 
+                    (FrontBogie != Helios_Entity) & 
+                    (RearBogie != Helios_Entity)
+                )
+                
+                NewDownforce = F * BlueForce_MaxForce
+                local Impulse = vec(0, 0, -BlueForce)
+                if (BlueForce_SplitForce) {
+                    Impulse = Impulse / max(1, ApplyForceBogey1 + ApplyForceBogey2 + ApplyForceDriver)
+                }
+                
+                if (ApplyForceBogey1) {
+                    FrontBogie:applyForce(Impulse)
+                }
+                if (ApplyForceBogey2) {
+                    RearBogie:applyForce(Impulse)
+                }
+                if (ApplyForceDriver) {
+                    Helios_Entity:applyForce(Impulse)
+                }
+            }
+        }
+        Downforce = NewDownforce
+    } else {
+        Downforce = 0
+    }
+    
+    Notch = Helios_Notch
+    Reverser = Helios_Reverser
+    EngineStatus = Helios_EngineReport
+    NotchingThrottle = 0
+    LEC_E2Ops = ops()
+    LEC_E2CPUUsage = cpuUsage() * 1000000
+    state_refreshHighIdle()
+    
+    if (Helios_Activate && Notch > 0) {
+        local LowSetting = 0
+        local HighSetting = 100
+        if (Notch > 1) {
+            LowSetting = Revolt_NotchThresholds[Notch, number]
+        }
+        if (Notch < 8) {
+            HighSetting = Revolt_NotchThresholds[Notch + 1, number]
+        }
+        NotchingThrottle = 100 * ((Throttle - LowSetting) / (HighSetting - LowSetting))
+    }
+}
+
+
+##########################################################################
+#                                                                        #
+#                                                                        #
+#                           ENGINE TIMERS                                #
+#                                                                        #
+#                                                                        #
+##########################################################################
+
+elseif (clkName() != "") {
+    local TimerName = clkName()
+    local DoPlayEngineLoop = 0
+
+    if (TimerName == "ENGINE_START_FINISH") {
+        Helios_EngineReport = 2
+        DoPlayEngineLoop = 1
+        Helios_EngineHighIdle = 1
+        state_refreshHighIdle()
+        local ExitLowIdleDelay_Min = Helios_HighIdleMin * 1000
+        local ExitLowIdleDelay_Max = Helios_HighIdleMax * 1000
+        timer("ENGINE_STARTUP_GO_LOW_IDLE", randint(ExitLowIdleDelay_Min, ExitLowIdleDelay_Max))
+    } elseif (TimerName == "ENGINE_SHUTDOWN_FINISH") {
+        Helios_EngineReport = 0
+        soundStop(SPS_Sound_Engine)
+        soundStop(SPS_Sound_Engine)
+    } elseif (TimerName == "ENGINE_STARTUP_GO_LOW_IDLE") {
+        Helios_EngineHighIdle = 0
+        state_refreshHighIdle()
+        if (state_getCurrentNotch() == 0 & !HighIdling) {
+            sound_startNotchTransition("down/idle-idle_low.wav")
+        }
+    } elseif (TimerName == "ENGINE_TRANSITION") {
+        if (Helios_EngineReport == 2) {
+            DoPlayEngineLoop = 1
+        }
+    }
+
+    if (DoPlayEngineLoop) {
+        local CurNotch = state_getCurrentNotch()
+        local LoopSound = ""
+        if (CurNotch == 0) {
+             if(IdleToggle == 1){
+            LoopSound = format("%s/%s", Engine_Path, HighIdling ? "/notch1.wav" : "/idle.wav")
+        }elseif(IdleToggle == 2){
+             LoopSound = format("%s/%s", Engine_Path, HighIdling ? "/idle_notch1.wav" : "/idle_notch1.wav")
+    }else{
+        LoopSound = format("%s/%s", Engine_Path, HighIdling ? "/idle.wav" : "/idle_low.wav")
+    }
+        } else {
+            LoopSound = format("%s/notch%d.wav", Engine_Path, CurNotch)
+        }
+        soundStop(SPS_Sound_Engine)
+        ENT_Holo_Sound_Engine:soundPlay(SPS_Sound_Engine, 0, LoopSound)
+        soundLevel(SPS_Sound_Engine, Engine_SoundLevel)
+        if (SoundDSP_Enable) {
+                soundStop(SPS_Sound_Engine_Distant)
+                entity():soundPlay(SPS_Sound_Engine_Distant, 0, LoopSound)
+                soundLevel(SPS_Sound_Engine_Distant, SoundDSP_DSPlevel)
+                soundDSP(SPS_Sound_Engine_Distant, SoundDSP_Distance)
+            }
+             if (DPM) {
+                soundStop(SPS_DPM_ENGINE)
+                entity():soundPlay(SPS_DPM_ENGINE, 0, LoopSound)
+                soundLevel(SPS_DPM_ENGINE, DPM_Level * 0.25)
+               
+            }
+    }
+    #WARNING: Work In Progress Code!~
+    
+    if(WheelSounds == 1){
+    if(Throttle > 0){
+        ThrottleYes = 1
+    }else{
+        ThrottleYes = 0
+    }
+    if(UPS > 0){
+        SpeedYes = 1
+    }else{
+        SpeedYes = 0
+    }
+   local Motion = (ThrottleYes == 1) & (SpeedYes == 1)
+    if((Throttle == 0) | (UPS == 0)){
+        soundStop(13)
+        soundStop(15)
+        Motion == 0
+    }
+   local TractionMotors = Motion ? Engine_TractionMotors : ""
+
+            FrontBogie:soundPlay(SPS_WheelSounds_Front, 0, TractionMotors)
+            soundLevel(SPS_WheelSounds_Front, 54)
+            RearBogie:soundPlay(SPS_WheelSounds_Rear, 0, TractionMotors)
+            soundLevel(SPS_WheelSounds_Rear, 54)
+}
+}
+
+##########################################################################
+#                                                                        #
+#                                                                        #
+#                           Variable Triggers                            #
+#                                                                        #
+#                                                                        #
+########################################################################## 
+
+elseif (!clk()) {
+    if ((!->Loco_MUMaster) | (Loco_MUMaster == 1)) {
+        if (Helios_Activate & (~ReverserForward | ~ReverserBackwards)) {
+            local Old_State_Reverser = Helios_Reverser
+            Helios_Reverser = max(-1, min(Helios_Reverser + ReverserForward - ReverserBackwards, 1))
+            if (Helios_Reverser != Old_State_Reverser) {
+                sound_startNotchTransition("") # reverser will affect high vs low idle
+            }
+        }
+        
+        elseif (Helios_EngineProcedures & ~EngineToggle & (Helios_EngineReport % 2 == 0)) {
+            Helios_EngineReport = (Helios_EngineReport + 1) % 4
+    
+            local SoundPath = ""
+            local TimerName = ""
+    
+            if (Helios_EngineReport == 1) {
+                SoundPath = Engine_Path + Engine_Startup
+                TimerName = "ENGINE_START_FINISH"
+            } elseif (Helios_EngineReport == 3) {
+                stoptimer("ENGINE_TRANSITION")
+                soundStop(SPS_Sound_Engine, 0)
+                SoundPath = Engine_Path + (HighIdling ? Engine_Shutdown : Engine_ShutdownLow)
+                TimerName = "ENGINE_SHUTDOWN_FINISH"
+            }
+            
+            soundStop(SPS_Sound_Engine)
+            ENT_Holo_Sound_Engine:soundPlay(SPS_Sound_Engine, 0, SoundPath)
+            soundLevel(SPS_Sound_Engine, Engine_SoundLevel)
+            if (SoundDSP_Enable) {
+                soundStop(SPS_Sound_Engine_Distant)
+                entity():soundPlay(SPS_Sound_Engine_Distant, 0, SoundPath)
+                soundLevel(SPS_Sound_Engine_Distant,SoundDSP_DSPlevel)
+                soundDSP(SPS_Sound_Engine_Distant, SoundDSP_Distance)
+            }
+             if (DPM) {
+                soundStop(SPS_DPM_ENGINE)
+                entity():soundPlay(SPS_DPM_ENGINE, 0, SoundPath)
+                soundLevel(SPS_DPM_ENGINE,DPM_Level*0.25)
+            }
+            timer(TimerName, soundDuration(SoundPath) * 1000)
+        }
+    }
+    local BogiesRewired = ~FrontBogie | ~RearBogie
+    if (BogiesRewired | (~TrainBrake & TrainBrake)) {
+        Brake = BogiesRewired | (Brake ? 0 : 1)
+        local SoundToPlay = Brake ? Engine_Brakes_On : Engine_Brakes_Off
+        local PhysPropToApply = Brake ? Revolt_Physprop_Brake : Revolt_PhysProp_NoBrake
+        if (->FrontBogie) {
+            FrontBogie:soundPlay(SPS_Sound_Brake_Front, 0, SoundToPlay)
+            FrontBogie:propPhysicalMaterial(PhysPropToApply)
+            holo_cloneBogey(FrontBogie, HDD_Holo_Bogey1)
+        }
+        if (->RearBogie) {
+            RearBogie:soundPlay(SPS_Sound_Brake_Rear, 0, SoundToPlay)
+            RearBogie:propPhysicalMaterial(PhysPropToApply)
+            holo_cloneBogey(RearBogie, HDD_Holo_Bogey_2)
+        }
+    }
+    
+    if (~Active & !Helios_EngineProcedures) {
+        if (Active) {
+            State_EngineMoment = 2
+            soundStop(SPS_Sound_Engine, 0)
+            ENT_Holo_Sound_Engine:soundPlay(SPS_Sound_Engine, 0, "")
+            soundPitch(SPS_Sound_Engine, 100 + abs(Throttle) / 2)
+        } else {
+            Helios_EngineReport = 0
+            soundStop(SPS_Sound_Engine, 0)
+        }
+    }
+  
+}
+
+
+elseif (first() | dupefinished()) {
+    if (Revolt_Bogies) {
+        if (FrontBogie) {
+            holo_cloneBogey(FrontBogie, HDD_Holo_Bogey1)
+        }
+        if (RearBogie) {
+            holo_cloneBogey(RearBogie, HDD_Holo_Bogey_2)
+        }
+    }
+}
+
+#########VERSION CHECKER
+if(clk("vc_timeout")){
+    runOnHTTP(0)
+    print("ERROR: L.E.C was Unable to Contact Github. Version Unknown!")
+    setName("L.E.C" + "\n Locomotive Engine Chip " + "\n Version: " +Version + "\n UNABLE TO CONTACT GITHUB")
+    
+}elseif(httpClk()){
+    runOnHTTP(0)
+    stoptimer("vc_timeout")
+    local MasterVersion = httpData()
+    local MVA = MasterVersion:explode(".")
+    local MV_Major = MVA[2,string]
+    local MV_Minor = MVA[3,string]
+    
+    local VA = Version:explode(".")
+    local V_Major = VA[2,string]
+    local V_Minor = VA[3,string]
+    
+    local Version_Checker = (MV_Major:toNumber() < V_Major:toNumber()) | (V_Minor:toNumber() > MV_Minor:toNumber())
+    
+    if(Version_Checker){
+       
+        printColor(vec(127,255,127),"Notice! L.E.C Version is Out of Date! You Can Pick up a New Version at: https://github.com/Qulizznos/Locomotive.-Engine.-Chip.")
+         setName("L.E.C" + "\n Locomotive Engine Chip " + "\n Version: " +Version + "\n E2 OUT OF DATE PLEASE GET NEW VERSION")
+        
+    }else{
+        
+        #soundVolume(0,0.5)
+        print("L.E.C Version is Sucessfully on Recent Version.")
+        setName("L.E.C" + "\n Locomotive Engine Chip " + "\n Version: " +Version )
+    }
+}
+
